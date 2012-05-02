@@ -1,17 +1,10 @@
 package com.alibado.asea.drops
 {
-    import com.alibado.asea.EaContext;
     import com.alibado.asea.EaDrop;
-    import com.alibado.asea.EaValue;
     import com.alibado.net.SharedClass;
     
-    public class EaNew extends EaDrop
+    public class EaNew extends EaAsea
     {
-        public function EaNew(context:EaContext)
-        {
-            super(context);
-        }
-        
         override public function get name():String
         {
             return "new";
@@ -19,56 +12,37 @@ package com.alibado.asea.drops
         
         /**
          * example:
-         * <new name="myPic" constructor="Pic">
-         *     <param value="box" />
-         *     <param value="number/400" />
-         *     <param value="number/300" />
-         *     <param value="@string/this is my title" />
+         * <new id="myPic" value="Pic">
+         *     <get value="box" />
+         *     <get value="number/400" />
+         *     <get value="number/300" />
+         *     <get value="@string/this is my title" />
          * </new>
          */
-        override public function process(dom:XML, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
         {
-            var tempEaValue:EaValue = _context.uniformGetter(dom.@constructor);
-            var tempClass:Class;
-            if (!tempEaValue)
+            function onParamGet(result:* = null):void
             {
-                tempClass = SharedClass.instance.getClass(dom.@constructor);
-                if (!tempClass)
+                var result:* = getInstance(con, contextsCopy[0]);
+                if (onComplete != null) onComplete(result);
+            }
+            
+            var con:Class = SharedClass.instance.getClass(dom.@value);
+            if (con == null)
+            {
+                con = getValue(dom.@value, contexts);
+                if (con == null)
                 {
-                    if(onError != null) onError(EaContext.ERROR_CANOT_FOUND_CLASS, "找不到类:constructor", dom.@constructor, dom);
-                    return;
+                    if(onError != null) onError(ERROR_CANOT_FOUND_CLASS, "找不到类:value", dom.@value, dom);
+                    if (onComplete != null) onComplete();
                 }
             }
             else
             {
-                tempClass = tempEaValue.value;
+                var contextsCopy:Array = contexts.slice();
+                contextsCopy.unshift([]);
+                super.process(dom, contextsCopy, onParamGet, onError);
             }
-            
-            if (!String(dom.@name).match("^[_a-zA-Z]+$"))
-            {
-                if(onError != null) onError(EaContext.ERROR_NAME_INVALID, "命名无效:name", dom.@name, dom);
-                return;
-            }
-            
-            var args:Array = [];
-            var children:XMLList = dom.children();
-            for (var i:int = 0; i < children.length(); i++)
-            {
-                var tempArg:EaValue = _context.uniformGetter(children[i].@value);
-                if (tempArg)
-                {
-                    args.push(tempArg.value);
-                }
-                else
-                {
-                    if(onError != null) onError(EaContext.ERROR_CANOT_FOUND_VALUE, "找不到值:value", children[i].@value, children[i]);
-                    return;
-                }
-            }
-            
-            var tempObject:Object = getInstance(tempClass, args);
-            _context.setObject(dom.@name, tempObject);
-            if (onComplete != null) onComplete();
         }
         
         private function getInstance(myClass:Class, args:Array):Object

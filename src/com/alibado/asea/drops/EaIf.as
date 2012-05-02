@@ -1,15 +1,7 @@
 package com.alibado.asea.drops
 {
-    import com.alibado.asea.EaContext;
-    import com.alibado.asea.EaValue;
-    
     public class EaIf extends EaAsea
     {
-        public function EaIf(context:EaContext)
-        {
-            super(context);
-        }
-        
         override public function get name():String
         {
             return "if";
@@ -17,45 +9,26 @@ package com.alibado.asea.drops
         
         /**
          * example:
-         * <if left="number/1" logic="@function/equal" right="@number/other">
-         *     <lib src="http://www.alibado.com/lib/myLib.swf" />
-         *     <class name="MyClass" value="com.alibado.lib.DemoClass" />
+         * <if value="id">
+         *     <lib value="http://www.alibado.com/lib/myLib.swf" />
+         *     <class id="MyClass" value="com.alibado.lib.DemoClass" />
          * </if>
          * 
-         * onComplete(result:Boolean)
          */
-        override public function process(dom:XML, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
         {
-            var logicEaValue:EaValue = _context.uniformGetter(dom.@logic);
-            var leftEaValue:EaValue = _context.uniformGetter(dom.@left);
-            var rightEaValue:EaValue = _context.uniformGetter(dom.@right);
-            if (!logicEaValue)
+            function onAseaComplete(result:* = null):void
             {
-                if(onError != null) onError(EaContext.ERROR_CANOT_FOUND_VALUE, "找不到值:logic", dom.@logic, dom);
-                return;
+                if (onComplete != null) onComplete(true);
             }
-            if (!leftEaValue)
+            
+            if (getValue(dom.@value, contexts) == true)
             {
-                if(onError != null) onError(EaContext.ERROR_CANOT_FOUND_VALUE, "找不到值:left", dom.@left, dom);
-                return;
-            }
-            if (!rightEaValue)
-            {
-                if(onError != null) onError(EaContext.ERROR_CANOT_FOUND_VALUE, "找不到值:right", dom.@right, dom);
-                return;
-            }
-            if (logicEaValue.value.call(logicEaValue.value, leftEaValue.value, rightEaValue.value))
-            {
-                super.process(dom, onProcessComplete, onError);
+                super.process(dom, contexts, onAseaComplete, onError);
             }
             else
             {
                 if (onComplete != null) onComplete(false);
-            }
-            
-            function onProcessComplete(...args):void
-            {
-                if (onComplete != null) onComplete(true);
             }
         }
     }

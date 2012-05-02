@@ -1,16 +1,9 @@
 package com.alibado.asea.drops
 {
-    import com.alibado.asea.EaContext;
     import com.alibado.asea.EaDrop;
-    import com.alibado.asea.EaValue;
     
-    public class EaMethod extends EaDrop
+    public class EaMethod extends EaAsea
     {
-        public function EaMethod(context:EaContext)
-        {
-            super(context);
-        }
-        
         override public function get name():String
         {
             return "method";
@@ -18,49 +11,32 @@ package com.alibado.asea.drops
         
         /**
          * example:
-         * <method name="draw" target="pen" result="pic">
-         *     <param value="number/400" />
-         *     <param value="number/300" />
-         *     <param value="@string/this is my title" />
+         * <method id="pic" value="draw">
+         *     <get value="number/400" />
+         *     <get value="number/300" />
+         *     <get value="@string/this is my title" />
          * </method>
          */
-        override public function process(dom:XML, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
         {
-            var tempEaValue:EaValue = _context.uniformGetter(dom.@target);
-            if (!tempEaValue)
+            function onParamGet(result:* = null):void
             {
-                if(onError != null) onError(EaContext.ERROR_CANOT_FOUND_VALUE, "找不到值:target", dom.@target, dom);
-                return;
+                var result:* = fun.apply(null, contextsCopy[0]);
+                if (onComplete != null) onComplete(result);
             }
             
-            if (!String(dom.@name).match("^[_a-zA-Z]+$"))
+            var fun:Function = getValue(dom.@value, contexts);
+            if (fun == null)
             {
-                if(onError != null) onError(EaContext.ERROR_NAME_INVALID, "命名无效:name", dom.@name, dom);
-                return;
+                if(onError != null) onError(ERROR_CANOT_FOUND_VALUE, "找不到值:value", dom.@value, dom);
+                if (onComplete != null) onComplete();
             }
-            
-            var target:Object = tempEaValue.value;
-            var args:Array = [];
-            var children:XMLList = dom.param;
-            for (var i:int = 0; i < children.length(); i++)
+            else
             {
-                var tempArg:EaValue = _context.uniformGetter(children[i].@value);
-                if (tempArg)
-                {
-                    args.push(tempArg.value);
-                }
-                else
-                {
-                    if(onError != null) onError(EaContext.ERROR_CANOT_FOUND_VALUE, "找不到值:value", children[i].@value, children[i]);
-                    return;
-                }
+                var contextsCopy:Array = contexts.slice();
+                contextsCopy.unshift([]);
+                super.process(dom, contextsCopy, onParamGet, onError);
             }
-            var result:* = target[dom.@name].apply(target, args);
-            if (result && String(dom.@result).match("^[_a-zA-Z]+$"))
-            {
-                _context.setObject(dom.@result, result);
-            }
-            if (onComplete != null) onComplete();
         }
     }
 }

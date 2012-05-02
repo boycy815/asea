@@ -1,14 +1,9 @@
 package com.alibado.asea.drops
 {
-    import com.alibado.asea.EaContext;
     import com.alibado.asea.EaDrop;
 
     public class EaTrace extends EaDrop
     {
-        public function EaTrace(context:EaContext)
-        {
-            super(context);
-        }
         
         override public function get name():String
         {
@@ -16,11 +11,11 @@ package com.alibado.asea.drops
         }
         
         /**
-         * example: <trace text="hello world" />
+         * example: <trace value="hello world" />
          */
-        override public function process(dom:XML, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
         {
-            trace(_context.uniformGetter(dom.@text));
+            trace(getValue(dom.@text, contexts));
             if (onComplete != null) onComplete();
         }
     }

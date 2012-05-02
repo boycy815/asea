@@ -5,27 +5,21 @@ package com.alibado.asea.drops
     import flash.display.LoaderInfo;
     import flash.events.Event;
     import flash.events.IOErrorEvent;
-    import com.alibado.asea.EaContext;
     import com.alibado.asea.EaDrop;
 
     public class EaLib extends EaDrop
     {
-        public function EaLib(context:EaContext)
-        {
-            super(context);
-        }
-        
         override public function get name():String
         {
             return "lib";
         }
         
         /**
-         * example: <lib src="http://www.alibado.com/lib/myLib.swf" />
+         * example: <lib value="http://www.alibado.com/lib/myLib.swf" />
          */
-        override public function process(dom:XML, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
         {
-            var info:LoaderInfo = SharedClass.instance.loadLib(dom.@src);
+            var info:LoaderInfo = SharedClass.instance.loadLib(dom.@value);
             info.addEventListener(Event.COMPLETE, onLoadComplete);
             info.addEventListener(IOErrorEvent.IO_ERROR, onIoError);
             
@@ -38,7 +32,7 @@ package com.alibado.asea.drops
             function onIoError(e:IOErrorEvent):void
             {
                 e.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, onIoError);
-                if(onError != null) onError(EaContext.ERROR_IO_ERROR, e.text, dom.@src, dom);
+                if(onError != null) onError(ERROR_IO_ERROR, e.text, dom.@value, dom);
             }
         }
     }

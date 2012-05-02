@@ -1,14 +1,10 @@
 package com.alibado.asea.drops
 {
-    import com.alibado.asea.EaContext;
+    import com.alibado.asea.EaConfig;
     import com.alibado.asea.EaDrop;
     
-    public class EaSelector extends EaAsea
+    public class EaSelector extends EaDrop
     {
-        public function EaSelector(context:EaContext)
-        {
-            super(context);
-        }
         
         override public function get name():String
         {
@@ -18,28 +14,56 @@ package com.alibado.asea.drops
         /**
          * example:
          * <selector>
-         *     <if left="number/1" logic="@function/equal" right="@number/other">
-         *         <lib src="http://www.alibado.com/lib/myLib.swf" />
-         *         <class name="MyClass" value="com.alibado.lib.DemoClass" />
+         *     <if value="id1">
+         *         <lib value="http://www.alibado.com/lib/myLib.swf" />
+         *         <class id="MyClass" value="com.alibado.lib.DemoClass" />
          *     </if>
-         *     <if left="number/2" logic="@function/equal" right="@number/other">
-         *         <lib src="http://www.alibado.com/lib/myLib.swf" />
-         *         <class name="MyClass" value="com.alibado.lib.DemoClass" />
+         *     <if value="id2">
+         *         <lib value="http://www.alibado.com/lib/myLib.swf" />
+         *         <class id="MyClass" value="com.alibado.lib.DemoClass" />
          *     </if>
          * </selector>
          * 
          * 子节点规则：onComplete参数第一个为true则跳出，否则继续。
          */
-        override protected function processNext(...args):void
+        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
         {
-            if (args[0])
+            var count:int = 0;
+            var children:XMLList = dom.children();
+            
+            
+            function processNext(result:* = null):void
             {
-                if(_onComplete != null) _onComplete();
+                if (result == true)
+                {
+                    if(onComplete != null) onComplete();
+                    return;
+                }
+                if (count < children.length())
+                {
+                    var xml:XML = children[count];
+                    count++;
+                    if (EaConfig.getDrop(xml.localName()) != null)
+                        EaConfig.getDrop(xml.localName()).process(xml, contexts, processNext, processError);
+                    else
+                    {
+                        if(onError != null) onError(ERROR_CANOT_FOUND_DROP, "找不到节点值处理器", xml.localName(), xml);
+                        processNext();
+                    }
+                }
+                else
+                {
+                    if(onComplete != null) onComplete();
+                }
             }
-            else
+            
+            function processError(errorCode:int, message:String, target:String, xml:XML):void
             {
-                super.processNext();
+                if(onError != null) onError(errorCode, message, target, xml);
             }
+            
+            
+            processNext();
         }
     }
 }
