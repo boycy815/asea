@@ -15,20 +15,20 @@ package com.alibado.asea.drops
          * </if>
          * 
          */
-        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
         {
             function onAseaComplete(result:* = null):void
             {
-                if (onComplete != null) onComplete(true);
+                onComplete(true);
             }
             
-            if (getValue(dom.@value, contexts) == true)
+            if (value == true)
             {
-                super.process(dom, contexts, onAseaComplete, onError);
+                super.onProcess(dom, value, contexts, onAseaComplete, onError);
             }
             else
             {
-                if (onComplete != null) onComplete(false);
+                onComplete(false);
             }
         }
     }

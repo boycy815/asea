@@ -13,6 +13,10 @@ package com.alibado.asea
         
         public static const TYPE_STRING:String = "string";
         public static const TYPE_NUMBER:String = "number";
+        public static const TYPE_BOOLEAN:String = "boolean";
+        
+        public static const KEY_WORD_THIS:String = "@this";
+        public static const KEY_WORD_ROOT:String = "@root";
         
         /**
          * override
@@ -34,16 +38,30 @@ package com.alibado.asea
             function onReturn(result:* = null):void
             {
                 if (contexts[0] is Array) contexts[0].push(result);
-                if (dom.@id != null && result != null)
+                if (dom.@id != null && dom.@id != "" && result != null)
                 {
                     setValue(dom.@id, result, contexts);
                 }
-                onComplete(result);
+                if (onComplete != null) onComplete(result);
             }
-            onProcess(dom, contexts, onReturn, onError);
+            
+            function onGetValue(result:* = null):void
+            {
+                onProcess(dom, result, contexts, onReturn, onError);
+            }
+            
+            var value:* = getValue(dom.@value, contexts);
+            if (value is EaBrew)
+            {
+                EaBrew(value).getValue(onGetValue);
+            }
+            else
+            {
+                onProcess(dom, value, contexts, onReturn, onError);
+            }
         }
         
-        protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
+        protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
         {
             //process the xml
         }
@@ -51,8 +69,10 @@ package com.alibado.asea
         protected function getValue(name:String, contexts:Array):*
         {
             var nameArray:Array;
-            if (name == null) return null;
-            if ((nameArray = name.match("^(" + TYPE_STRING + "|" + TYPE_NUMBER + ")\/(.+)$")))
+            if (name == null || name == "") return null;
+            
+            //mathc the const
+            if ((nameArray = name.match("^(" + TYPE_STRING + "|" + TYPE_NUMBER + "|" + TYPE_BOOLEAN + ")\/(.+)$")))
             {
                 switch(nameArray[1])
                 {
@@ -62,66 +82,88 @@ package com.alibado.asea
                     case TYPE_NUMBER:
                         return Number(nameArray[2]);
                         break;
+                    case TYPE_BOOLEAN:
+                        if (nameArray[2] == "true") return true;
+                        else if (nameArray[2] == "false") return false;
+                        break;
                 }
             }
+            
+            
             nameArray = name.split(".");
             var tempObj:Object;
-            if (nameArray[0] == "")
+            
+            //search the first object
+            if (nameArray[0] == KEY_WORD_ROOT)
             {
                 tempObj = contexts[contexts.length - 1];
+            }
+            else if (nameArray[0] == KEY_WORD_THIS)
+            {
+                tempObj = contexts[0];
             }
             else
             {
                 for (var i:int = 0; i < contexts.length; i++)
                 {
-                    if (contexts[i][nameArray[0]] != null)
+                    try
                     {
-                        tempObj = contexts[i][nameArray[0]];
-                        break;
+                        if (contexts[i][nameArray[0]] != null)
+                        {
+                            tempObj = contexts[i][nameArray[0]];
+                            break;
+                        }
+                    }
+                    catch (e:ReferenceError)
+                    {
+                        continue;
                     }
                 }
                 if (tempObj == null) return;
             }
+            
+            //sreach the following object
             for (var j:int = 1; j < nameArray.length; j++)
             {
-                if (tempObj[nameArray[j]] == null) return null;
-                else tempObj = tempObj[nameArray[j]];
+                try
+                {
+                    if (tempObj[nameArray[j]] == null) return null;
+                    else tempObj = tempObj[nameArray[j]];
+                }
+                catch (e:ReferenceError)
+                {
+                    return null;
+                }
             }
             return tempObj;
         }
         
         protected function setValue(name:String, value:*, contexts:Array):void
         {
+            if (name == null || name == "") return;
             var nameArray:Array = name.split(".");
-            var parent:Object = contexts[0];
-            if (nameArray.length >= 2)
+            var parent:Object = contexts;
+            if (nameArray[0] == KEY_WORD_ROOT)
             {
-                if (nameArray[0] == "")
+                nameArray.shift();
+                nameArray.unshift(contexts.length - 1);
+            }
+            else if (nameArray[0] == KEY_WORD_THIS)
+            {
+                nameArray.shift();
+                nameArray.unshift(0);
+            }
+            else
+            {
+                nameArray.unshift(0);
+            }
+            for (var j:int = 0; j < nameArray.length - 1; j++)
+            {
+                if (parent[nameArray[j]] == null)
                 {
-                    parent = contexts[contexts.length - 1];
-                    nameArray.shift();
+                    parent[nameArray[j]] = {};
                 }
-                else
-                {
-                    for (var i:int = 0; i < contexts.length; i++)
-                    {
-                        if (contexts[i][nameArray[0]] != null)
-                        {
-                            parent = contexts[i][nameArray[0]];
-                            nameArray.shift();
-                            break;
-                        }
-                    }
-                }
-                for (var j:int = 0; j < nameArray.length - 1; j++)
-                {
-                    if (parent[nameArray[j]] == null)
-                    {
-                        parent[nameArray[j]] = {};
-                        parent = parent[nameArray[j]];
-                    }
-                    parent = parent[nameArray[j]];
-                }
+                parent = parent[nameArray[j]];
             }
             parent[nameArray[nameArray.length - 1]] = value;
         }

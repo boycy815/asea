@@ -15,24 +15,25 @@ package com.alibado.asea.drops
         }
         
         /**
-         * example: <lib value="http://www.alibado.com/lib/myLib.swf" />
+         * example: <lib src="http://www.alibado.com/lib/myLib.swf" />
          */
-        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
         {
-            var info:LoaderInfo = SharedClass.instance.loadLib(dom.@value);
+            var info:LoaderInfo = SharedClass.instance.loadLib(dom.@src);
             info.addEventListener(Event.COMPLETE, onLoadComplete);
             info.addEventListener(IOErrorEvent.IO_ERROR, onIoError);
             
             function onLoadComplete(e:Event):void
             {
                 e.currentTarget.removeEventListener(Event.COMPLETE, onLoadComplete);
-                if(onComplete != null) onComplete();
+                onComplete();
             }
             
             function onIoError(e:IOErrorEvent):void
             {
                 e.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, onIoError);
-                if(onError != null) onError(ERROR_IO_ERROR, e.text, dom.@value, dom);
+                if(onError != null) onError(ERROR_IO_ERROR, e.text, dom.@src, dom);
+                onComplete();
             }
         }
     }

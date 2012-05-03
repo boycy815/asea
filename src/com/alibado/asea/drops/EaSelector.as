@@ -26,7 +26,7 @@ package com.alibado.asea.drops
          * 
          * 子节点规则：onComplete参数第一个为true则跳出，否则继续。
          */
-        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
         {
             var count:int = 0;
             var children:XMLList = dom.children();
@@ -36,7 +36,7 @@ package com.alibado.asea.drops
             {
                 if (result == true)
                 {
-                    if(onComplete != null) onComplete();
+                    onComplete();
                     return;
                 }
                 if (count < children.length())
@@ -53,7 +53,7 @@ package com.alibado.asea.drops
                 }
                 else
                 {
-                    if(onComplete != null) onComplete();
+                    onComplete();
                 }
             }
             

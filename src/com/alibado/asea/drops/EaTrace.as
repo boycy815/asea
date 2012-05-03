@@ -11,12 +11,12 @@ package com.alibado.asea.drops
         }
         
         /**
-         * example: <trace value="hello world" />
+         * example: <trace value="string/hello world" />
          */
-        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
         {
-            trace(getValue(dom.@text, contexts));
-            if (onComplete != null) onComplete();
+            trace(value);
+            onComplete();
         }
     }
 }

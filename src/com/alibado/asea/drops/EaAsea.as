@@ -11,7 +11,7 @@ package com.alibado.asea.drops
             return "asea";
         }
         
-        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
         {
             var count:int = 0;
             var children:XMLList = dom.children();
@@ -33,7 +33,7 @@ package com.alibado.asea.drops
                 }
                 else
                 {
-                    if(onComplete != null) onComplete();
+                    onComplete();
                 }
             }
             

@@ -12,20 +12,20 @@ package com.alibado.asea.drops
         }
         
         /**
-         * example: <class id="MyClass" value="com.alibado.lib.DemoClass" />
+         * example: <class id="MyClass" constructor="com.alibado.lib.DemoClass" />
          */
-        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
         {
-            var tempClass:Class = SharedClass.instance.getClass(dom.@value);
+            var tempClass:Class = SharedClass.instance.getClass(dom.@constructor);
             
             if (tempClass)
             {
-                if (onComplete != null) onComplete(tempClass);
+                onComplete(tempClass);
             }
             else
             {
-                if(onError != null) onError(ERROR_CANOT_FOUND_CLASS, "找不到类:value", dom.@value, dom);
-                if (onComplete != null) onComplete();
+                if(onError != null) onError(ERROR_CANOT_FOUND_CLASS, "找不到类:constructor", dom.@constructor, dom);
+                onComplete();
             }
         }
     }

@@ -16,33 +16,31 @@ package com.alibado.asea.drops
          *     <get value="box" />
          *     <get value="number/400" />
          *     <get value="number/300" />
-         *     <get value="@string/this is my title" />
+         *     <get value="string/this is my title" />
          * </new>
          */
-        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
         {
             function onParamGet(result:* = null):void
             {
                 var result:* = getInstance(con, contextsCopy[0]);
-                if (onComplete != null) onComplete(result);
+                onComplete(result);
             }
             
-            var con:Class = SharedClass.instance.getClass(dom.@value);
+            var con:Class = value;
             if (con == null)
             {
-                con = getValue(dom.@value, contexts);
+                con = SharedClass.instance.getClass(dom.@value);
                 if (con == null)
                 {
                     if(onError != null) onError(ERROR_CANOT_FOUND_CLASS, "找不到类:value", dom.@value, dom);
-                    if (onComplete != null) onComplete();
+                    onComplete();
+                    return;
                 }
             }
-            else
-            {
-                var contextsCopy:Array = contexts.slice();
-                contextsCopy.unshift([]);
-                super.process(dom, contextsCopy, onParamGet, onError);
-            }
+            var contextsCopy:Array = contexts.slice();
+            contextsCopy.unshift([]);
+            super.onProcess(dom, value, contextsCopy, onParamGet, onError);
         }
         
         private function getInstance(myClass:Class, args:Array):Object

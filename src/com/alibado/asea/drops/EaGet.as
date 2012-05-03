@@ -15,9 +15,9 @@ package com.alibado.asea.drops
          * example:
          * <get id="myPen" value="pen" >
          */
-        override protected function onProcess(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
+        override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
         {
-            if (onComplete != null) onComplete(getValue(dom.@value, contexts));
+            onComplete(value);
         }
     }
     
