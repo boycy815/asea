@@ -155,7 +155,26 @@ package com.alibado.asea
             }
             else
             {
-                nameArray.unshift(0);
+                parent = contexts[0];
+                if (nameArray.length > 1)
+                {
+                    for (var i:int = 0; i < contexts.length; i++)
+                    {
+                        try
+                        {
+                            if (contexts[i][nameArray[0]] != null)
+                            {
+                                parent = contexts[i][nameArray[0]];
+                                nameArray.shift();
+                                break;
+                            }
+                        }
+                        catch (e:ReferenceError)
+                        {
+                            continue;
+                        }
+                    }
+                }
             }
             for (var j:int = 0; j < nameArray.length - 1; j++)
             {
