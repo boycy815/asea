@@ -134,10 +134,10 @@ bean：
 class：
 
         /**
-         * example: <class id="MyClass" constructor="com.alibado.lib.DemoClass" />
+         * example: <class id="MyClass" value="com.alibado.lib.DemoClass" />
          */
 
-定义一个类的别名，constructor属性是类的完整命名，id是类的别名。实际上该别名就是上下文环境中的一个Class对象。
+定义一个类的别名，value属性是类的完整命名，id是类的别名。实际上该别名就是上下文环境中的一个Class对象。
 
 get：
 
@@ -165,7 +165,7 @@ if：
 lib：
 
         /**
-         * example: <lib src="http://www.alibado.com/lib/myLib.swf" />
+         * example: <lib value="http://www.alibado.com/lib/myLib.swf" />
          */
 
 该标签是动态加载swf库到当前applicationDomain。
@@ -241,3 +241,12 @@ with：
 
 
 该标签为其内部的标签创造一个当前上下文对象，内部标签的当前上下文对象变成由value指定的对象。
+
+include：
+
+        /**
+         * example:
+         * <include value="pen.xml" >
+         */
+
+该标签可导入一个外部的xml或者上下文中存在的一个xml对象，系统首先搜索value中给定的值是否在上下文中有对应的xml对象，若是有则处理之，若是没有则搜索是否存在对应的String对象，若是有则将其视为外部xml的URL并加载之，若是没有则将value内容视为外部XML的URL并加载之。载入的XML与外部享有相同的上下文环境。
