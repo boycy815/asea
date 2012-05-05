@@ -13,31 +13,33 @@ An ioc library for as3
 
 一. Hello World
 
- 1 package
- 2 {
- 3     import com.alibado.asea.*;
- 4     
- 5     import flash.display.Sprite;
- 6     
- 7     public class AseaTest extends Sprite
- 8     {
- 9         public function AseaTest()
-10         {
-11             //定义配置xml
-12             var xml:XML = new XML(<asea><trace value="string/hello world"/></asea>);
-13             
-14             //获取根节点处理器
-15             var asea:EaDrop = EaConfig.getDrop("asea");
-16 
-17             //定义上下文对象
-18             var context:Object = {};
-19 
-20             //执行
-21             asea.process(xml, [context]);
-22         }
-23     }
-24     
-25 }
+/*
+package
+{
+    import com.alibado.asea.*;
+    
+    import flash.display.Sprite;
+    
+    public class AseaTest extends Sprite
+    {
+        public function AseaTest()
+        {
+            //定义配置xml
+            var xml:XML = new XML(<asea><trace value="string/hello world"/></asea>);
+            
+            //获取根节点处理器
+            var asea:EaDrop = EaConfig.getDrop("asea");
+
+            //定义上下文对象
+            var context:Object = {};
+
+            //执行
+            asea.process(xml, [context]);
+        }
+    }
+    
+}
+*/
 
 除非您打算扩展它，否则使用Asea的仅需要四步。
 
@@ -60,30 +62,32 @@ Asea目前提供的标签有：asea，class，get，if，lib，method，new，selector，trace，w
 
 这里贴出了最简单的标签处理器
 
- 1 package com.alibado.asea.drops
- 2 {
- 3     import com.alibado.asea.EaDrop;
- 4     
- 5     public class EaGet extends EaDrop
- 6     {
- 7         
- 8         override public function get name():String
- 9         {
-10             return "get";
-11         }
-12         
-13         
-14         /**
-15          * example:
-16          * <get id="myPen" value="pen" >
-17          */
-18         override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
-19         {
-20             onComplete(value);
-21         }
-22     }
-23     
-24 }
+/**
+package com.alibado.asea.drops
+{
+    import com.alibado.asea.EaDrop;
+    
+    public class EaGet extends EaDrop
+    {
+        
+        override public function get name():String
+        {
+            return "get";
+        }
+        
+        
+        /**
+         * example:
+         * <get id="myPen" value="pen" >
+         */
+        override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
+        {
+            onComplete(value);
+        }
+    }
+    
+}
+*/
 
 在EaGet中覆盖了public function get name():String，需要在该方法中返回该标签处理器的要处理的标签名。
 
