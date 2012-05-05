@@ -19,7 +19,7 @@ package com.alibado.asea.drops
         {
             if (value == null)
             {
-                if(onError != null) onError(ERROR_CANOT_FOUND_VALUE, "找不到值:value", dom.@value, dom);
+                if(onError != null) onError(ERROR_CANOT_FOUND_VALUE, "dom.@value", dom.@value, dom);
                 onComplete();
             }
             else

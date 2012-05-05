@@ -27,16 +27,20 @@ package com.alibado.asea.drops
                 onComplete(result);
             }
             
-            var con:Class = value;
-            if (con == null)
+            var con:Class;
+            if (!(value is Class))
             {
                 con = SharedClass.instance.getClass(dom.@value);
                 if (con == null)
                 {
-                    if(onError != null) onError(ERROR_CANOT_FOUND_CLASS, "找不到类:value", dom.@value, dom);
+                    if(onError != null) onError(ERROR_CANOT_FOUND_CLASS, "dom.@value", dom.@value, dom);
                     onComplete();
                     return;
                 }
+            }
+            else
+            {
+                con = value;
             }
             var contextsCopy:Array = contexts.slice();
             contextsCopy.unshift([]);

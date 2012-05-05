@@ -22,16 +22,11 @@ package com.alibado.asea.brews
             _asea = asea;
         }
         
-        override public function getValue(onComplete:Function):void
+        override public function getValue(onComplete:Function, onError:Function = null):void
         {
             function onReturn(result:* = null):void
             {
                 onComplete(contextCopy[0]);
-            }
-            
-            function onError(errorCode:int, message:String, target:String, xml:XML):void
-            {
-                onComplete();
             }
             
             var contextCopy:Array = _contexts.slice();

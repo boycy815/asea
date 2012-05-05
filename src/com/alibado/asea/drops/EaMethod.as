@@ -21,11 +21,21 @@ package com.alibado.asea.drops
         {
             function onParamGet(result:* = null):void
             {
-                var result:* = fun.apply(null, contextsCopy[0]);
-                onComplete(result);
+                var r:* = fun.apply(null, contextsCopy[0]);
+                onComplete(r);
             }
             
-            var fun:Function = value;
+            var fun:Function;
+            if (value is Function)
+            {
+                fun = value;
+            }
+            else
+            {
+                if(onError != null) onError(ERROR_CANOT_FOUND_FUNCTION, "dom.@value", dom.@value, dom);
+                onComplete();
+                return;
+            }
             var contextsCopy:Array = contexts.slice();
             contextsCopy.unshift([]);
             super.onProcess(dom, value, contextsCopy, onParamGet, onError);

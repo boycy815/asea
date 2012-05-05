@@ -9,7 +9,8 @@ package com.alibado.asea
         public static const ERROR_IO_ERROR:int = 1002;
         public static const ERROR_CANOT_FOUND_CLASS:int = 1003;
         public static const ERROR_CANOT_FOUND_VALUE:int = 1004;
-        public static const ERROR_NAME_INVALID:int = 1005;
+        public static const ERROR_CANOT_FOUND_PATH:int = 1005;
+        public static const ERROR_CANOT_FOUND_FUNCTION:int = 1006;
         
         public static const TYPE_STRING:String = "string";
         public static const TYPE_NUMBER:String = "number";
@@ -31,7 +32,7 @@ package com.alibado.asea
          * override
          * @param dom XML
          * @param onComplete function(result:* = null):void
-         * @param onError function(errorCode:int, message:String, target:String, xml:XML):void
+         * @param onError function(errorCode:int, target:String, value:String, xml:XML):void
          */
         public function process(dom:XML, contexts:Array, onComplete:Function = null, onError:Function = null):void
         {
@@ -53,7 +54,7 @@ package com.alibado.asea
             var value:* = getValue(dom.@value, contexts);
             if (value is EaBrew)
             {
-                EaBrew(value).getValue(onGetValue);
+                EaBrew(value).getValue(onGetValue, onError);
             }
             else
             {
@@ -91,6 +92,13 @@ package com.alibado.asea
             
             
             nameArray = name.split(".");
+            
+            for (var v:int = 0; v < nameArray.length; v++)
+            {
+                if (!nameArray[v].match("^@?[_a-zA-Z]+$"))
+                    return null;
+            }
+            
             var tempObj:Object;
             
             //search the first object
@@ -142,6 +150,13 @@ package com.alibado.asea
         {
             if (name == null || name == "") return;
             var nameArray:Array = name.split(".");
+            
+            for (var v:int = 0; v < nameArray.length; v++)
+            {
+                if (!nameArray[v].match("^@?[_a-zA-Z]+$"))
+                    return;
+            }
+            
             var parent:Object = contexts;
             if (nameArray[0] == KEY_WORD_ROOT)
             {
@@ -156,23 +171,19 @@ package com.alibado.asea
             else
             {
                 parent = contexts[0];
-                if (nameArray.length > 1)
+                for (var i:int = 0; i < contexts.length; i++)
                 {
-                    for (var i:int = 0; i < contexts.length; i++)
+                    try
                     {
-                        try
+                        if (contexts[i][nameArray[0]] != null)
                         {
-                            if (contexts[i][nameArray[0]] != null)
-                            {
-                                parent = contexts[i][nameArray[0]];
-                                nameArray.shift();
-                                break;
-                            }
+                            parent = contexts[i];
+                            break;
                         }
-                        catch (e:ReferenceError)
-                        {
-                            continue;
-                        }
+                    }
+                    catch (e:ReferenceError)
+                    {
+                        continue;
                     }
                 }
             }

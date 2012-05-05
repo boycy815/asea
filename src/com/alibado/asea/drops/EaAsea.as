@@ -24,10 +24,10 @@ package com.alibado.asea.drops
                     var xml:XML = children[count];
                     count++;
                     if (EaConfig.getDrop(xml.localName()) != null)
-                        EaConfig.getDrop(xml.localName()).process(xml, contexts, processNext, processError);
+                        EaConfig.getDrop(xml.localName()).process(xml, contexts, processNext, onError);
                     else
                     {
-                        if(onError != null) onError(ERROR_CANOT_FOUND_DROP, "找不到节点值处理器", xml.localName(), xml);
+                        if(onError != null) onError(ERROR_CANOT_FOUND_DROP, "xml.localName()", xml.localName(), xml);
                         processNext();
                     }
                 }
@@ -36,12 +36,6 @@ package com.alibado.asea.drops
                     onComplete();
                 }
             }
-            
-            function processError(errorCode:int, message:String, target:String, xml:XML):void
-            {
-                if(onError != null) onError(errorCode, message, target, xml);
-            }
-            
             
             processNext();
         }

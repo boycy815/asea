@@ -4,9 +4,22 @@ package com.alibado.asea
 
     public class EaConfig
     {
-        private static const drops:Vector.<Class> = new<Class>[EaAsea, EaClass, EaGet, EaIf, EaLib, EaMethod, EaNew, EaSelector, EaTrace, EaWith, EaBean];
+        private static const drops:Vector.<Class> = new<Class>[EaAsea, EaClass, EaGet, EaIf, EaLib, EaMethod, EaNew, EaSelector, EaTrace, EaWith, EaBean, EaInclude];
         
         private static var instances:Array;
+        
+        public static function addDrop(dropClass:Class):void
+        {
+            if (instances == null)
+            {
+                drops.push(dropClass);
+            }
+            else
+            {
+                var drop:EaDrop = new dropClass();
+                instances[drop.name] = drop;
+            }
+        }
         
         public static function getDrop(name:String):EaDrop
         {
