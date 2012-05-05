@@ -63,30 +63,29 @@ Asea目前提供的标签有：asea，class，get，if，lib，method，new，selector，trace，w
 
 这里贴出了最简单的标签处理器
 
-//	package com.alibado.asea.drops
-//	{
-//		import com.alibado.asea.EaDrop;
-//		
-//		public class EaGet extends EaDrop
-//		{
-//			
-//			override public function get name():String
-//			{
-//				return "get";
-//			}
-//			
-//			
-//			/**
-//			 * example:
-//			 * <get id="myPen" value="pen" >
-//			 */
-//			override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
-//			{
-//				onComplete(value);
-//			}
-//		}
-//		
-//	}
+		/**
+		 * package com.alibado.asea.drops
+		 * {
+		 *     import com.alibado.asea.EaDrop;
+		 *     
+		 *     public class EaGet extends EaDrop
+		 *     {
+		 *         
+		 *         override public function get name():String
+		 *         {
+		 *             return "get";
+		 *         }
+		 *         
+		 *         // example:
+		 *         // <get id="myPen" value="pen" >
+		 *         override protected function onProcess(dom:XML, value:*, contexts:Array, onComplete:Function, onError:Function = null):void
+		 *         {
+		 *             onComplete(value);
+		 *         }
+		 *     }
+		 * }
+		 * 
+		 */
 
 在EaGet中覆盖了public function get name():String，需要在该方法中返回该标签处理器的要处理的标签名。
 
