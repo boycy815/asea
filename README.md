@@ -13,31 +13,34 @@ An ioc library for as3
 
 一. Hello World
 
-//	package
-//	{
-//		import com.alibado.asea.*;
-//		
-//		import flash.display.Sprite;
-//		
-//		public class AseaTest extends Sprite
-//		{
-//			public function AseaTest()
-//			{
-//				//定义配置xml
-//				var xml:XML = new XML(<asea><trace value="string/hello world"/></asea>);
-//				
-//				//获取根节点处理器
-//				var asea:EaDrop = EaConfig.getDrop("asea");
-//				
-//				//定义上下文对象
-//				var context:Object = {};
-//				
-//				//执行
-//				asea.process(xml, [context]);
-//			}
-//		}
-//		
-//	}
+		/**
+		 * package
+		 * {
+		 *     import com.alibado.asea.*;
+		 *     
+		 *     import flash.display.Sprite;
+		 *     
+		 *     public class AseaTest extends Sprite
+		 *     {
+		 *         public function AseaTest()
+		 *         {
+		 *             //定义配置xml
+		 *             var xml:XML = new XML(<asea><trace value="string/hello world"/></asea>);
+		 *             
+		 *             //获取根节点处理器
+		 *             var asea:EaDrop = EaConfig.getDrop("asea");
+		 * 
+		 *             //定义上下文对象
+		 *             var context:Object = {};
+		 * 
+		 *             //执行
+		 *             asea.process(xml, [context]);
+		 *         }
+		 *     }
+		 *     
+		 * }
+		 * 
+		 */
 
 除非您打算扩展它，否则使用Asea的仅需要四步。
 
