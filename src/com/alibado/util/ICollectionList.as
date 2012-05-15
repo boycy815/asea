@@ -22,7 +22,7 @@ package com.alibado.util
         * @param item 添加的内容
         * @return 被添加到的位置
         */
-        function add(item:*):uint;
+        function add(item:*):int;
         
         /**
         * 在指定位置插入一个元素

@@ -2,8 +2,8 @@ package com.alibado.asea.falls
 {
     public interface IEaFallAble
     {
-        function fallRun(falls:EaFalls, ...args):void;
+        function _fallRun(falls:EaFalls, args:Array):void;
         
-        function fallAbort():void;
+        function _fallAbort():void;
     }
 }

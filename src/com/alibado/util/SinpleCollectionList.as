@@ -32,7 +32,7 @@ package com.alibado.util
             _data.length = 0;
             for (var i:int = dc.length - 1; i >= 0; i--)
             {
-                _user.onRemove(dc[i], i);
+                _user._onRemove(dc[i], i);
             }
             return true;
         }
@@ -50,7 +50,7 @@ package com.alibado.util
             
             _data.splice(i, 1);
             
-            _user.onRemove(item, i);
+            _user._onRemove(item, i);
             
             return item;
         }
@@ -68,7 +68,7 @@ package com.alibado.util
                 {
                     _data.splice(i, 1);
                     count++;
-                    _user.onRemove(item, i);
+                    _user._onRemove(item, i);
                 }
             }
             return count;
@@ -82,7 +82,7 @@ package com.alibado.util
             
             _data.splice(i, 1);
             
-            _user.onRemove(item, i);
+            _user._onRemove(item, i);
             
             return true;
         }
@@ -99,7 +99,7 @@ package com.alibado.util
             {
                 old = _data[i];
                 _data[i] = item;
-                _user.onReplace(old, i);
+                _user._onReplace(old, i);
             }
             return old;
         }
@@ -137,7 +137,7 @@ package com.alibado.util
                 {
                     _data.splice(i, 1);
                     c++;
-                    _user.onRemove(item, i);
+                    _user._onRemove(item, i);
                 }
             }
             return c;
@@ -188,9 +188,13 @@ package com.alibado.util
         {
             if (items.length == 0 || i > _data.length) return false;
             var l:int = items.length;
+            var fail:int = 0;
             for (var j:int = 0; j < l; j++)
             {
-                addAt(items.getAt(j), i + j);
+                if (!addAt(items.getAt(j), i + j - fail))
+                {
+                    fail++;
+                }
             }
             return true;
         }
@@ -199,18 +203,22 @@ package com.alibado.util
         {
             if (i > _data.length) return false;
             
+            if (!_user._typeValidate(item)) return false;
+            
             _data.splice(i, 0, item);
             
-            _user.onAdd(item, i);
+            _user._onAdd(item, i);
             
             return true;
         }
         
-        public function add(item:*):uint
+        public function add(item:*):int
         {
+            if (!_user._typeValidate(item)) return -1;
+            
             var i:int = _data.length;
             _data[i] = item;
-            _user.onAdd(item, i);
+            _user._onAdd(item, i);
             return i;
         }
         
@@ -229,9 +237,13 @@ package com.alibado.util
         {
             if (items.length == 0 || i > _data.length) return false;
             var l:int = items.length;
+            var fail:int = 0;
             for (var j:int = 0; j < l; j++)
             {
-                addAt(items[j], i + j);
+                if (!addAt(items[j], i + j - fail))
+                {
+                    fail++;
+                }
             }
             return true;
         }
@@ -277,7 +289,7 @@ package com.alibado.util
                 {
                     _data.splice(i, 1);
                     c++;
-                    _user.onRemove(item, i);
+                    _user._onRemove(item, i);
                 }
             }
             return c;
@@ -296,7 +308,7 @@ package com.alibado.util
                 {
                     _data.splice(i, 1);
                     count++;
-                    _user.onRemove(item, i);
+                    _user._onRemove(item, i);
                 }
             }
             return count;

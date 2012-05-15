@@ -7,6 +7,7 @@ package com.alibado.fuildui
     import flash.events.Event;
     import flash.events.MouseEvent;
     import flash.ui.Mouse;
+    import com.alibado.fuildui.util.FdStage;
     
     public class FdButtonCore extends FdComponent
     {
@@ -101,7 +102,7 @@ package com.alibado.fuildui
             this.removeEventListener(MouseEvent.CLICK, onClick);
             this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
             this.removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-            FdStageManager.stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+            FdStage.stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
         }
     }
 }

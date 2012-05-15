@@ -2,6 +2,7 @@ package com.alibado.net
 {
     import flash.display.Loader;
     import flash.display.LoaderInfo;
+    import flash.errors.IllegalOperationError;
     import flash.events.Event;
     import flash.net.URLRequest;
     import flash.system.ApplicationDomain;
@@ -19,7 +20,7 @@ package com.alibado.net
         
         public function SharedClass()
         {
-            if (_instance) throw new Error("Single Instace Error - SharedClass");
+            if (_instance) throw new IllegalOperationError("尝试在单例类中实例化多个实例 - SharedClass");
             else
             {
                 _instance = this;

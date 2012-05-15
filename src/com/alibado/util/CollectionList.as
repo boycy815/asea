@@ -203,7 +203,7 @@ package com.alibado.util
             return true;
         }
         
-        public function add(item:*):uint
+        public function add(item:*):int
         {
             var i:int = _data.length;
             _data[i] = item;
