@@ -17,13 +17,21 @@ package com.alibado.asea.falls
         //下一个执行的任务标号
         private var _nextPoint:int = 0;
         
-        //当前执行的action
+        //当前执行的action，若此不为空则说明当前有任务在执行（可能是暂停或者执行）
         private var _currentAction:EaFallAction;
         
-        //若是当前的falls发生的另外一个母falls中，则保存之，否则为空
+        //若是当前的falls发生的另外一个母falls中，则保存之
+        //若是其不为空则说明外部falls在等待本falls的回调
+        //为空则说明没有关心他的falls
         private var _parentFalls:EaFalls;
         
-        //当前是否为处理状态
+        //有多个母falls的等待队列
+        //若目前有falls关心本falls或者本falls在执行中则将新加入的母falls加入等待队列
+        //直到执行结束后从等待队列里取出一个母falls
+        private var _parentFallsWaiting:Vector.<EaFalls>;
+        
+        //当前是否为正在执行状态，如果为true说明有任务正在执行并且非暂停
+        //为false则有可能为暂停或者停止状态
         private var _isPlaying:Boolean = false;
         
         //暂停状态时若当前action完成则标记该标记位
@@ -42,6 +50,7 @@ package com.alibado.asea.falls
         public function EaFalls()
         {
             _handles = new SinpleCollectionList(this);
+            _parentFallsWaiting = new Vector.<EaFalls>();
         }
         
         
@@ -100,22 +109,40 @@ package com.alibado.asea.falls
         //IEaFallAble
         
         /**
-        * 母falls调用其执行
+        * 若当前fall正在执行或者有母falls等待其结束则将其加入的母falls放到等待队列
+        * 否则则立即开始执行
         */
         public function _fallRun(falls:EaFalls, args:Array):void
         {
-            if (_parentFalls) _parentFalls.stop();
-            _parentFalls = falls;
-            play();
+            //若是仍然有人关心执行结果则将falls加入等待队列
+            if (_currentAction || _parentFalls)
+            {
+                _parentFallsWaiting.push(falls);
+            }
+            else
+            {
+                _parentFalls = falls;
+                play();
+            }
         }
         
         /**
-        * 母falls调用其中止执行
+        * 母falls调用其中止执行，使其下个指针头复位并清空其母falls
+        * 好像没事儿人一样准备下一次被母falls或者用户调用
         */
         public function _fallAbort():void
         {
+            //中止当前执行
             abort();
+            
+            //复位
+            _nextPoint = 0;
+            
+            //由于母falls调用该方法故母falls已经不关心它
             _parentFalls = null;
+            
+            //检查是否还有别的falls想要执行本falls，有则执行
+            checkWaitingFalls();
         }
         
         
@@ -168,40 +195,63 @@ package com.alibado.asea.falls
         }
         
         /**
-        * 若是当前处于暂停状态，则恢复为播放状态
-        * 若是当前处于播放状态则无效
+        * 从停止状态转换成播放状态
         */
         public function play():void
         {
+            //切换为播放状态
             _isPlaying = true;
+            
+            //若是当前没有任务在执行
             if (_currentAction == null)
             {
+                //去执行一个任务
                 _onNext();
             }
+            //若是当前有任务在执行，我要检测下他是否已经完成任务但是没告知的
             else if (_tempComplete)
             {
+                //跑去告知任务
                 _tempComplete = false;
                 _onNext();
             }
+            //其余情况属于已有任务在执行而且还没完成的，没有必要做什么事
         }
         
         /**
-        * 人工结束链的执行，其具体过程是
-        * 中止当前执行的action并将下一个执行头重置到0，然后发生Complete回调
+        * 人工正常结束链的执行，好像是链真的执行结束了一样
+        * 一样发生了complete回调，一样将next复位，一样通知了母falls并清空母falls
         */
         public function stop():void
         {
+            //中止当前执行的任务
             abort();
+            
+            //复位
+            _nextPoint = 0;
+            
+            //发送complete回调
             if (_onComplete != null)
             {
                 _onComplete(this);
             }
-            if (_parentFalls) _parentFalls._onNext();
+            
+            //通知母falls已经完成，之后母falls已经不关心本falls了
+            if (_parentFalls)
+            {
+                _parentFalls._onNext();
+                _parentFalls = null;
+            }
+            
+            //现在状态属于完成状态，此时检测是否还有母falls要使用本falls
+            checkWaitingFalls();
         }
         
         /**
-        * 暂停链的执行，但是不会中止其正在执行的action
-        * 当前action执行完成之后不会发生progress回调，而是等到下次执行play的时候回调
+        * 暂停链的执行，纯粹的暂停，链里面不会发生任何回调，链也不会继续下去
+        * 但是当前执行的action其本身并未停止，也许他已经执行完毕，但是没有通知外界，
+        * 因为他知道你在睡觉，所以自个儿玩去了，直到你用play方法恢复才会告知你他已经完成并且继续往下执行。
+        * 如果你睡觉中直接调用了stop，那么相当于睡死了。。睡死了当然就不会关心那个action完成没有
         */
         public function pause():void
         {
@@ -215,23 +265,38 @@ package com.alibado.asea.falls
         */
         public function _onNext():void
         {
-            if(_onProgress != null && _currentAction && _isPlaying) _onProgress(_currentAction, this);
+            //调用next时，如果当前是执行状态且非暂停状态，则可以发生progress回调
+            if(_onProgress != null && _isPlaying) _onProgress(_currentAction, this);
+            
+            //如果当前是执行且非暂停状态
             if (_isPlaying)
             {
+                //如果下个action位置未超过界限
                 if (_nextPoint < _handles.length && _nextPoint >= 0)
                 {
+                    //获取下一个action
                     _currentAction = _handles.getAt(_nextPoint);
+                    
+                    //产生新的下一个action位置
                     _nextPoint++;
+                    
+                    //执行这个action
                     _currentAction.fall._fallRun(this, _currentAction.args);
                 }
+                //如果下一个action超过界限则认为执行结束
                 else
                 {
+                    //转换为非执行状态
                     _currentAction = null;
+                    
+                    //像正常人一样停止
                     stop();
                 }
             }
+            //当前为暂停状态
             else if (_currentAction)
             {
+                //暂时将成功的喜讯保存起来吧
                 _tempComplete = true;
             }
         }
@@ -265,18 +330,37 @@ package com.alibado.asea.falls
         
         
         /**
-         * 中止当前执行的action并将下一个执行头重置到0
+         * 中止当前执行的action
+         * 可能你不满意当前执行的action，所以你要中止他
+         * 然后你可以做一些小动作之后继续falls的执行。
+         * 对于你的母falls，它并不很知道你究竟对这个falls做了啥
          */
-        private function abort():void
+        public function abort():void
         {
+            //若是当前为执行状态
             if (_currentAction != null)
             {
+                //将正在执行的action停止
                 _currentAction.fall._fallAbort();
+                
+                //并切换为非执行状态
                 _currentAction = null;
             }
+            
+            //转换为非执行状态也要改变的数据
             _isPlaying = false;
+            
+            //暂停时候完成的喜讯因为中止执行也没有了
             _tempComplete = false;
-            _nextPoint = 0;
+        }
+        
+        //检测等待队列中是否有falls，若有则让其执行
+        private function checkWaitingFalls():void
+        {
+            if (_parentFallsWaiting.length > 0)
+            {
+                _fallRun(_parentFallsWaiting.shift(), null);
+            }
         }
     }
 }
