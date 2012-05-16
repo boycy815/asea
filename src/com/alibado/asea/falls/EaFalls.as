@@ -215,9 +215,9 @@ package com.alibado.asea.falls
         */
         public function _onNext():void
         {
+            if(_onProgress != null && _currentAction && _isPlaying) _onProgress(_currentAction, this);
             if (_isPlaying)
             {
-                if(_onProgress != null && _currentAction) _onProgress(_currentAction, this);
                 if (_nextPoint < _handles.length && _nextPoint >= 0)
                 {
                     _currentAction = _handles.getAt(_nextPoint);
@@ -230,7 +230,7 @@ package com.alibado.asea.falls
                     stop();
                 }
             }
-            else
+            else if (_currentAction)
             {
                 _tempComplete = true;
             }
@@ -254,6 +254,10 @@ package com.alibado.asea.falls
             _onComplete = val;
         }
         
+        /**
+        * 确定当前的执行状态
+        * @return 当前正在执行则返回true，反之返回false
+        */
         public function isPlaying():Boolean
         {
             return _isPlaying;
@@ -265,14 +269,14 @@ package com.alibado.asea.falls
          */
         private function abort():void
         {
-            _isPlaying = false;
-            _nextPoint = 0;
-            _tempComplete = false;
             if (_currentAction != null)
             {
                 _currentAction.fall._fallAbort();
                 _currentAction = null;
             }
+            _isPlaying = false;
+            _tempComplete = false;
+            _nextPoint = 0;
         }
     }
 }
