@@ -4,7 +4,7 @@ package com.alibado.fuildui.skin
     
     import flash.display.Sprite;
     
-    public class FdSkinCore extends Sprite implements IFdSkin
+    public class FdSkinCore extends Sprite
     {
         protected var _status:int;
         

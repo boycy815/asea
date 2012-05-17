@@ -5,31 +5,40 @@ package com.alibado.fuildui
     import com.alibado.fuildui.layout.IFdBeLayoutAble;
     import com.alibado.fuildui.skin.FdSkinCore;
     import com.alibado.fuildui.skin.FdSkinStatusConstant;
-    import com.alibado.fuildui.skin.IFdSkin;
     
     import flash.display.Sprite;
     
-    public class FdComponent extends Sprite implements IFdSkin,IFdBeLayoutAble
+    /**
+    * 组件基类
+    */
+    public class FdComponent extends Sprite implements IFdBeLayoutAble
     {
         
+        //是否允许鼠标交互
         private var _enable:Boolean = true;
         
+        //组件的皮肤
         private var _skin:FdSkinCore;
         
+        //组件布局属性
         private var _layoutOption:FdLayoutOption;
         
+        //组件母容器
         private var _parent:FdContainer;
         
+        //组件源大小
         private var _sourceWidth:Number;
-        
         private var _sourceHeight:Number;
         
         /**
-         * @param sk 皮肤
-         */ 
+        * 构造函数
+        * @param sk 皮肤
+        */ 
         public function FdComponent(sk:FdSkinCore = null)
         {
             super();
+            
+            //若传入皮肤为空则使用默认空白皮肤
             if (!sk) sk = new FdSkinCore();
             sk.x = sk.y = 0;
             _skin = sk;
