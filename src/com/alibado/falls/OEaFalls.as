@@ -1,4 +1,4 @@
-package com.alibado.asea.falls
+package com.alibado.falls
 {
     import com.alibado.util.ICollectionList;
     import com.alibado.util.IUseCollectionList;
@@ -9,7 +9,7 @@ package com.alibado.asea.falls
     * 控制异步执行链
     */
     
-    public class EaFalls implements IUseCollectionList, IEaFallAble
+    public class OEaFalls implements IUseCollectionList, OIEaFallAble
     {
         //数据列表
         private var _handles:ICollectionList;
@@ -18,17 +18,17 @@ package com.alibado.asea.falls
         private var _nextPoint:int = 0;
         
         //当前执行的action，若此不为空则说明当前有任务在执行（可能是暂停或者执行）
-        private var _currentAction:EaFallAction;
+        private var _currentAction:OEaFallAction;
         
         //若是当前的falls发生的另外一个母falls中，则保存之
         //若是其不为空则说明外部falls在等待本falls的回调
         //为空则说明没有关心他的falls
-        private var _parentFalls:EaFalls;
+        private var _parentFalls:OEaFalls;
         
         //有多个母falls的等待队列
         //若目前有falls关心本falls或者本falls在执行中则将新加入的母falls加入等待队列
         //直到执行结束后从等待队列里取出一个母falls
-        private var _parentFallsWaiting:Vector.<EaFalls>;
+        private var _parentFallsWaiting:Vector.<OEaFalls>;
         
         //当前是否为正在执行状态，如果为true说明有任务正在执行并且非暂停
         //为false则有可能为暂停或者停止状态
@@ -47,10 +47,10 @@ package com.alibado.asea.falls
         /**
         * 构造函数
         */
-        public function EaFalls()
+        public function OEaFalls()
         {
             _handles = new SinpleCollectionList(this);
-            _parentFallsWaiting = new Vector.<EaFalls>();
+            _parentFallsWaiting = new Vector.<OEaFalls>();
         }
         
         
@@ -93,7 +93,7 @@ package com.alibado.asea.falls
          */
         public function _typeValidate(item:*):Boolean
         {
-            if (!(item is EaFallAction))
+            if (!(item is OEaFallAction))
             {
                 throw new ArgumentError("必须在CollectionList中添加EaFallAction类型的元素 - EaFalls");
                 return false;
@@ -112,7 +112,7 @@ package com.alibado.asea.falls
         * 若当前fall正在执行或者有母falls等待其结束则将其加入的母falls放到等待队列
         * 否则则立即开始执行
         */
-        public function _fallRun(falls:EaFalls, args:Array):void
+        public function _fallRun(falls:OEaFalls, args:Array):void
         {
             //若是仍然有人关心执行结果则将falls加入等待队列
             if (_currentAction || _parentFalls)
@@ -180,9 +180,9 @@ package com.alibado.asea.falls
         * @param fall 一个执行对象
         * @param args 执行的参数
         */
-        public function addAction(fall:IEaFallAble, args:Array):void
+        public function addAction(fall:OIEaFallAble, args:Array):void
         {
-            _handles.add(new EaFallAction(fall, args));
+            _handles.add(new OEaFallAction(fall, args));
         }
         
         /**

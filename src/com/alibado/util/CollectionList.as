@@ -74,14 +74,17 @@ package com.alibado.util
         public function remove(item:*):Boolean
         {
             var i:int = _data.indexOf(item);
+            var edit:Boolean = false;
             
-            if (i == -1) return false;
+            while(i >= 0)
+            {
+                _data.splice(i, 1);
+                edit = true;
+                dispatchEvent(new CollectionListEvent(CollectionListEvent.ITEM_REMOVED, item, i));
+                i = _data.indexOf(item);
+            }
             
-            _data.splice(i, 1);
-            
-            dispatchEvent(new CollectionListEvent(CollectionListEvent.ITEM_REMOVED, item, i));
-            
-            return true;
+            return edit;
         }
         
         public function setAt(i:uint, item:*):*
