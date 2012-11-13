@@ -1,7 +1,7 @@
 package com.alibado.asea.drops
 {
     import com.alibado.asea.EaDrop;
-    import com.alibado.net.SharedClass;
+    import com.alibado.util.net.SharedClass;
     
     import flash.display.LoaderInfo;
     import flash.events.Event;
@@ -28,7 +28,7 @@ package com.alibado.asea.drops
                 onComplete();
                 return;
             }
-            var info:LoaderInfo = SharedClass.instance.loadLib(url);
+            var info:LoaderInfo = SharedClass.loadLib(url);
             info.addEventListener(Event.COMPLETE, onLoadComplete);
             info.addEventListener(IOErrorEvent.IO_ERROR, onIoError);
             

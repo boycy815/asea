@@ -1,7 +1,7 @@
 package com.alibado.asea.drops
 {
     import com.alibado.asea.EaDrop;
-    import com.alibado.net.SharedClass;
+    import com.alibado.util.net.SharedClass;
     
     public class EaNew extends EaAsea
     {
@@ -30,7 +30,7 @@ package com.alibado.asea.drops
             var con:Class;
             if (!(value is Class))
             {
-                con = SharedClass.instance.getClass(dom.@value);
+                con = SharedClass.getClass(dom.@value);
                 if (con == null)
                 {
                     if(onError != null) onError(ERROR_CANOT_FOUND_CLASS, "dom.@value", dom.@value, dom);

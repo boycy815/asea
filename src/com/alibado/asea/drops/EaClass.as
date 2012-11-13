@@ -1,7 +1,7 @@
 package com.alibado.asea.drops
 {
     import com.alibado.asea.EaDrop;
-    import com.alibado.net.SharedClass;
+    import com.alibado.util.net.SharedClass;
 
     public class EaClass extends EaDrop
     {
@@ -23,7 +23,7 @@ package com.alibado.asea.drops
                 onComplete();
                 return;
             }
-            var tempClass:Class = SharedClass.instance.getClass(constructor);
+            var tempClass:Class = SharedClass.getClass(constructor);
             
             if (tempClass is Class)
             {
