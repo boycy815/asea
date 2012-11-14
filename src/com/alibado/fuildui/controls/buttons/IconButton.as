@@ -1,9 +1,9 @@
-package com.alibado.fuildui.controls.button
+package com.alibado.fuildui.controls.buttons
 {
-    import alternativa.gui.container.Container;
     import alternativa.gui.mouse.CursorManager;
     
     import com.alibado.fuildui.container.AlignContainer;
+    import com.alibado.fuildui.container.Container;
     import com.alibado.util.layout.AlignUtils;
     
     import flash.display.DisplayObject;

@@ -1,7 +1,5 @@
 package com.alibado.fuildui.container
 {
-    import alternativa.gui.container.Container;
-    
     import com.alibado.consts.EW;
     import com.alibado.util.layout.AlignUtils;
     
@@ -9,6 +7,7 @@ package com.alibado.fuildui.container
     import flash.display.DisplayObjectContainer;
     import flash.geom.Point;
     import flash.geom.Rectangle;
+    import flash.utils.Dictionary;
     
     /**
      * 支持对齐布局的容器
@@ -20,7 +19,7 @@ package com.alibado.fuildui.container
         protected const _DEFAULT_ALIGN:int = AlignUtils.CENTER_X | AlignUtils.CENTER_Y;
         
         //每个元素的布局设置
-        protected var _alignOptions:Vector.<Array>;
+        protected var _alignOptions:Dictionary;
         
         //容器尺寸
         protected var _rect:Rectangle;
@@ -28,92 +27,18 @@ package com.alibado.fuildui.container
         public function AlignContainer()
         {
             super();
-            _alignOptions = new Vector.<Array>();
+            _alignOptions = new Dictionary();
             
             //保存尺寸数据
             _rect = new Rectangle();
         }
         
-        override public function addChild(child:DisplayObject):DisplayObject
+        override protected function onChildremoved(item:DisplayObject):void
         {
-            //判空
-            if (!child)
+            if (_alignOptions[item])
             {
-                throw new ArgumentError(EW.m("child", EW.NULL_OBJECT));
-                return null;
-            }
-            
-            //重复元素从数组中删除
-            var i:int = _objects.indexOf(child);
-            if (i >= 0)
-            {
-                _alignOptions.splice(i, 1);
-            }
-            
-            //添加到容器
-            var result:DisplayObject = super.addChild(child);
-            
-            //设置布局属性
-            _alignOptions.push([_DEFAULT_ALIGN, new Point()]);
-            
-            //重绘最后一个元素
-            drawItem(_objects.length - 1);
-            return result;
-        }
-        
-        override public function addChildAt(child:DisplayObject, index:int):DisplayObject
-        {
-            //判空
-            if (!child)
-            {
-                throw new ArgumentError(EW.m("child" + EW.NULL_OBJECT, EW.WRONG_DISPLAY_LIST));
-                return null;
-            }
-            //下标范围判断
-            if (index < 0 || index > _objects.length)
-            {
-                throw new RangeError(EW.m("index" + EW.INDEX_OUT_OF_RANGE));
-                return null;
-            }
-            
-            //重复元素从数组中删除
-            var i:int = _objects.indexOf(child);
-            if (i >= 0)
-            {
-                _alignOptions.splice(i, 1);
-            }
-            
-            //添加到容器
-            var result:DisplayObject = super.addChildAt(child, index);
-            
-            //设置布局属性
-            i = _objects.indexOf(child);
-            _alignOptions.splice(i, 0, [_DEFAULT_ALIGN, new Point()]);
-            
-            //重绘最后一个元素
-            drawItem(i);
-            return result;
-        }
-        
-        override public function removeChild(child:DisplayObject):DisplayObject
-        {
-            var i:int = _objects.indexOf(child);
-            if (!child || i < 0) return null;
-            _alignOptions.splice(i, 1);
-            return super.removeChild(child);
-        }
-        
-        override public function removeChildAt(index:int):DisplayObject
-        {
-            if (index >= 0 && index < _objects.length)
-            {
-                _alignOptions.splice(index, 1);
-                return super.removeChildAt(index)
-            }
-            else
-            {
-                throw new RangeError(EW.m("index", EW.INDEX_OUT_OF_RANGE));
-                return null;
+                _alignOptions[item] = null;
+                delete _alignOptions[item];
             }
         }
         
@@ -132,28 +57,21 @@ package com.alibado.fuildui.container
                 return null;
             }
             
-            //重复检车
-            var i:int = _objects.indexOf(child);
-            if (i >= 0)
-            {
-                _alignOptions.splice(i, 1);
-            }
-            
             //加入容器
             var result:DisplayObject = super.addChild(child);
             
             //设置布局参数
             if (offset)
             {
-                _alignOptions.push([align, offset]);
+                _alignOptions[child] = [align, offset];
             }
             else
             {
-                _alignOptions.push([align, new Point()]);
+                _alignOptions[child] = [align, new Point()];
             }
             
             //绘制该节点
-            drawItem(_objects.length - 1);
+            drawItem(child);
             return result;
         }
         
@@ -173,35 +91,27 @@ package com.alibado.fuildui.container
                 return null;
             }
             //节点范围判断
-            if (index < 0 || index > _objects.length)
+            if (index < 0 || index > numChildren)
             {
                 throw new RangeError(EW.m("index", EW.INDEX_OUT_OF_RANGE));
                 return null;
             }
             
-            //重复判断
-            var i:int = _objects.indexOf(child);
-            if (i >= 0)
-            {
-                _alignOptions.splice(i, 1);
-            }
-            
             //加入容器
             var result:DisplayObject = super.addChildAt(child, index);
-            i = _objects.indexOf(child);
             
             //布局属性设置
             if (offset)
             {
-                _alignOptions.splice(i, 0, [align, offset]);
+                _alignOptions[child] = [align, offset];
             }
             else
             {
-                _alignOptions.splice(i, 0, [align, new Point()]);
+                _alignOptions[child] = [align, new Point()];
             }
             
             //绘制
-            drawItem(i);
+            drawItem(child);
             return result;
         }
         
@@ -210,20 +120,27 @@ package com.alibado.fuildui.container
          * @param index 元素的索引
          * @param align 对齐属性 参考AlignUtils
          */
-        public function setChildAlign(index:int, align:int):void
+        public function setChildAlign(item:DisplayObject, align:int):void
         {
             //节点范围判断
-            if (index >= 0 && index < _objects.length)
+            if (item.parent == this)
             {
                 //设置布局参数
-                _alignOptions[index][0] = align;
+                if (!_alignOptions[item])
+                {
+                    _alignOptions[item] = [align, new Point()];
+                }
+                else
+                {
+                    _alignOptions[item][0] = align;
+                }
                 
                 //绘制该点
-                drawItem(index);
+                drawItem(item);
             }
             else
             {
-                throw new RangeError(EW.m("index", EW.INDEX_OUT_OF_RANGE));
+                throw new RangeError(EW.m("item", EW.WRONG_DISPLAY_LIST));
             }
         }
         
@@ -232,32 +149,37 @@ package com.alibado.fuildui.container
          * @param index 元素的索引
          * @param offset 偏移量属性 参考AlignUtils
          */
-        public function setChildOffset(index:int, offset:Point):void
+        public function setChildOffset(item:DisplayObject, offset:Point):void
         {
             //节点范围判断
-            if (index >= 0 && index < _objects.length)
+            if (item.parent == this)
             {
-                //节点范围判断
-                _alignOptions[index][1] = offset;
+                //设置布局参数
+                if (!_alignOptions[item])
+                {
+                    _alignOptions[item] = [_DEFAULT_ALIGN, offset];
+                }
+                else
+                {
+                    _alignOptions[item][1] = offset;
+                }
                 
                 //绘制该点
-                drawItem(index);
+                drawItem(item);
             }
             else
             {
-                throw new RangeError(EW.m("index", EW.INDEX_OUT_OF_RANGE));
+                throw new RangeError(EW.m("item", EW.WRONG_DISPLAY_LIST));
             }
-        }
-        
-        override public function get objects():Vector.<DisplayObject>
-        {
-            return _objects.slice();
         }
         
         override protected function draw():void
         {
-            var l:int = _objects.length;
-            for (var i:int = 0; i < l; i++)
+            //取得容器大小
+            _rect.width = width;
+            _rect.height = height;
+            
+            for (var i:* in _alignOptions)
             {
                 drawItem(i);
             }
@@ -265,14 +187,10 @@ package com.alibado.fuildui.container
         }
         
         //重绘单个元素
-        private function drawItem(index:int):void
+        private function drawItem(item:DisplayObject):void
         {
-            //取得容器大小
-            _rect.width = width;
-            _rect.height = height;
-            
             //计算位置
-            AlignUtils.alignBox(_objects[index], _rect, _alignOptions[index][0], _alignOptions[index][1]);
+            AlignUtils.alignBox(item, _rect, _alignOptions[item][0], _alignOptions[item][1]);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.alibado.fuildui.controls.button
+package com.alibado.fuildui.controls.buttons
 {
     import alternativa.gui.base.ActiveObject;
     
