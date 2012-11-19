@@ -6,36 +6,36 @@ package com.alibado.fuildui.container
     
     public class Container extends BaseUI
     {
-        public function Container()
+        public function Container(na:String = null, style:Object = null)
         {
-            super();
+            super(na, style);
         }
         
         override public function addChild(child:DisplayObject):DisplayObject
         {
             var result:DisplayObject = super.addChild(child);
-            onChildadded(result);
+            onChildAdded(result);
             return result;
         }
         
         override public function addChildAt(child:DisplayObject, index:int):DisplayObject
         {
             var result:DisplayObject = super.addChildAt(child, index);
-            onChildadded(result);
+            onChildAdded(result);
             return result;
         }
         
         override public function removeChild(child:DisplayObject):DisplayObject
         {
             var result:DisplayObject = super.removeChild(child);
-            onChildremoved(result);
+            onChildRemoved(result);
             return result;
         }
         
         override public function removeChildAt(index:int):DisplayObject
         {
             var result:DisplayObject = super.removeChildAt(index);
-            onChildremoved(result);
+            onChildRemoved(result);
             return result;
         }
         
@@ -57,12 +57,12 @@ package com.alibado.fuildui.container
             }
         }
         
-        protected function onChildadded(item:DisplayObject):void
+        protected function onChildAdded(item:DisplayObject):void
         {
             //
         }
         
-        protected function onChildremoved(item:DisplayObject):void
+        protected function onChildRemoved(item:DisplayObject):void
         {
             //
         }

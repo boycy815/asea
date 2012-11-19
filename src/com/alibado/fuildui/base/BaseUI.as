@@ -1,5 +1,7 @@
 package com.alibado.fuildui.base
 {
+    import com.alibado.fuildui.events.StyleEvent;
+    
     import flash.display.Sprite;
     import flash.events.Event;
     
@@ -8,15 +10,33 @@ package com.alibado.fuildui.base
      */
     public class BaseUI extends Sprite
     {
-        protected var _freezeHeight:Boolean = false;
-        protected var _freezeWidth:Boolean = false;
-        
         protected var _height:Number = 0;
         protected var _width:Number = 0;
         
-        public function BaseUI()
+        protected var _style:Object = {};
+        
+        public function BaseUI(na:String = null, style:Object = null)
         {
             super();
+            if (na)
+            {
+                name = na;
+            }
+            if (style)
+            {
+                _style = style;
+            }
+        }
+        
+        public function setStyle(name:String, style:*):void
+        {
+            _style[name] = style;
+            this.dispatchEvent(new StyleEvent(StyleEvent.STYLE_CHANGE, [style]));
+        }
+        
+        public function getStyle(name:String):*
+        {
+            return _style[name];
         }
         
         /**
@@ -26,17 +46,9 @@ package com.alibado.fuildui.base
          */
         override public function set height(value:Number):void
         {
-            if (_freezeHeight)
-            {
-                _height = value;
-            }
-            else
-            {
-                _height = calculateHeight(value);
-                onDrawing();
-                draw();
-                onDrawed();
-            }
+            _height = calculateHeight(value);
+            draw();
+            onDrawed();
         }
         
         /**
@@ -55,17 +67,9 @@ package com.alibado.fuildui.base
          */
         override public function set width(value:Number):void
         {
-            if (_freezeWidth)
-            {
-                _width = value;
-            }
-            else
-            {
-                _width = calculateWidth(value);
-                onDrawing();
-                draw();
-                onDrawed();
-            }
+            _width = calculateWidth(value);
+            draw();
+            onDrawed();
         }
         
         /**
@@ -84,63 +88,10 @@ package com.alibado.fuildui.base
          */
         public function resize(width:Number, height:Number):void
         {
-            var isResize:Boolean = false;
-            if (_freezeHeight)
-            {
-                _height = height;
-            }
-            else
-            {
-                _height = calculateHeight(height);
-                isResize = true;
-            }
-            if (_freezeWidth)
-            {
-                _width = width;
-            }
-            else
-            {
-                _width = calculateWidth(width);
-                isResize = true;
-            }
-            if (isResize)
-            {
-                onDrawing();
-                draw();
-                onDrawed();
-            }
-        }
-        
-        /**
-         * 设置是否在改变尺寸时不进行重绘
-         */
-        public function set freezeHeight(value:Boolean):void
-        {
-            _freezeHeight = value;
-        }
-        
-        /**
-         * 设置是否在改变尺寸时不进行重绘
-         */
-        public function get freezeHeight():Boolean
-        {
-            return _freezeHeight;
-        }
-        
-        /**
-         * 设置是否在改变尺寸时不进行重绘
-         */
-        public function set freezeWidth(value:Boolean):void
-        {
-            _freezeWidth = value;
-        }
-        
-        /**
-         * 设置是否在改变尺寸时不进行重绘
-         */
-        public function get freezeWidth():Boolean
-        {
-            return _freezeWidth;
+            _height = calculateHeight(height);
+            _width = calculateWidth(width);
+            draw();
+            onDrawed();
         }
         
         /**
@@ -163,11 +114,6 @@ package com.alibado.fuildui.base
          * 在尺寸被改变时调用
          */
         protected function draw():void
-        {
-            //
-        }
-        
-        protected function onDrawing():void
         {
             //
         }
