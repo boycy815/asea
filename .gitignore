@@ -2,6 +2,7 @@
 *.*
 */
 
-#but src lib
+#but src lib tests
 !src/
 !lib/
+!tests/
