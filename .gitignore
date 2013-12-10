@@ -2,7 +2,10 @@
 *.*
 */
 
-#but src lib tests
+#but src lib tests markdown
 !src/
 !lib/
 !tests/
+!*.md
+!*.MD
+!*.markdown
