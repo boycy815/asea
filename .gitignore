@@ -1,13 +1,7 @@
-# Build and Release Folders
-bin-debug/
-bin-release/
-html-template/
+#ignore all
+*.*
+*/
 
-# Project property files
-.actionScriptProperties
-.flexProperties
-.settings/
-.project
-
-#main files
-main/
+#but src lib
+!src/
+!lib/
